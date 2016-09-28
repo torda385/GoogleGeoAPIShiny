@@ -21,23 +21,58 @@ if(!require(leaflet)) install_github("rstudio/leaflet")
 #install shiny
 if(!require(shiny)) install_github("shiny")
 #install GoogleGeoAPI app
-#**************#
+if(!require(GoogleGeoAPI)) install_github("Rchieve/GoogleGeoAPI")
 
+shinyApp(
+  ui <- fluidPage(
+    titlePanel(
+      "Geocoding with GoogleGeoAPI"
+    ),
+    
+    sidebarPanel(
+      fluidRow(
+        radioButtons("input_type",
+                  h1("Input Type"),
+                  c("Address","Coordinates")),
+        h1("Input Location"),
+        conditionalPanel(condition=("input_type"==1),
+            textInput("text1","Address",value="Address")),
+        conditionalPanel(condition=("input_type"==2),
+            textInput("text2","Latitude",value="Latitude"),
+            textInput("text3","Longitude",value="Longitude"))   
+      ),
+      hr(),
+      fluidRow(
+        sliderInput("slider1",label=h3("Slider"),min=0,max=100,value=10
+        )
+      ),
+      fluidRow(
+        verbatimTextOutput("value")
+      ),
+      hr()
+  ),
+    mainPanel(
+      leafletOutput('myMap'),
+      p()
+    )
+  ),
 
-
-ggas <- function (lng, lat, z){
-  if(missing(z)) {
-    z=10
-  }
-  #create the base map
-  (m<-leaflet() %>% addTiles())
-  img<-readPNG("~/repos/Creating-maps-in-R/figure//shiny_world.png")
-  grid.raster(img)
-  #add a marker to the map
-  (m2 <- m %>% 
-    setView(lng=lng,lat=lat,zoom=z) %>% #add the location and set map size from data
-    addMarkers(lng,lat)) #add the marker to the coordinates
   
-
-
-}
+  server <- function(input,output){
+    #set zoom
+    output$value <- renderPrint({input$slider1})
+    if (input$input_type == 1){
+      address <- input$text1
+    } else {
+      latitude <- input$text2
+      longitude <- input$text3
+    }
+    textpop <- paste(as.character(address),as.character(latitude),as.character(longitude),sep="\n")
+  #create the base map
+  map=leaflet() %>%
+    addTiles() %>%
+    setView(lng=longitude,lat=latitude,zoom=output$value) %>% #add the location and set map size from data
+    addPopups(lng=longitude,lat=latitude,popup=textPop) #add the marker to the coordinates
+    output$myMap=renderLeaflet(map) #create map from output
+  }
+)
