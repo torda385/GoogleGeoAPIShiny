@@ -34,11 +34,11 @@ shinyApp(
       fluidRow(
         radioButtons("input_type",
                   h1("Input Type"),
-                  c("Address","Coordinates")),
+                  c(Address="Address",Coordinates="Coordinates")),
         h1("Input Location"),
-        conditionalPanel(condition=(input.input_type==1),
+        conditionalPanel("input.input_type=='Address'",
             textInput("text1","Address",value="Linköping University, 58183, Linköping")),
-        conditionalPanel(condition=(input.input_type==2),
+        conditionalPanel("input.input_type=='Coordinates'",
             textInput("text2","Latitude",value="58.397774"),
             textInput("text3","Longitude",value="15.575977"))   
       ),
@@ -47,8 +47,7 @@ shinyApp(
       )
   ),
     mainPanel(
-      leafletOutput("myMap"),
-      p()
+      leafletOutput("myMap")
     )
   ),
 
