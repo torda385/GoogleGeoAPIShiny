@@ -37,36 +37,32 @@ shinyApp(
                   c(Address="Address",Coordinates="Coordinates")),
         h1("Input Location"),
         conditionalPanel("input.input_type=='Address'",
-            textInput("text1","Address",value="Linköping University, 58183, Linköping")),
+            textInput("text1","Address",value="")),
         conditionalPanel("input.input_type=='Coordinates'",
-            textInput("text2","Latitude",value="58.397774"),
-            textInput("text3","Longitude",value="15.575977"))   
+            textInput("text2","Latitude",value="11.43141"),
+            textInput("text3","Longitude",value="16.12341"))   
       ),
       fluidRow(
         sliderInput("slider1",label=h3("Slider"),min=0,max=50,value=10)
       )
   ),
     mainPanel(
-      leafletOutput("myMap")
+      leafletOutput('mymap'),
+      p()
     )
   ),
 
   
   server <- function(input,output){
-    #set zoom
-    output$value <- renderPrint({input$slider1})
-    if (input$input_type == 1){
-      address <- input$text1
-    } else {
-      latitude <- input$text2
-      longitude <- input$text3
+    textPop <- "You are here"
+    #create the base map
+    output$mymap<-renderLeaflet({
+      leaflet() %>%
+        addTiles() %>%
+        setView(lng=input$text3,lat=input$text2,zoom=input$slider1) %>% #add the location and set map size from data
+      addPopups(lng=input$text3,lat=input$text2,popup=textPop)  #add the marker to the coordinates
+      
+    })
+    
     }
-    textpop <- paste(as.character(address),as.character(latitude),as.character(longitude),sep="\n")
-  #create the base map
-  map=leaflet() %>%
-    addTiles() %>%
-    setView(lng=longitude,lat=latitude,zoom=output$value) %>% #add the location and set map size from data
-    addPopups(lng=longitude,lat=latitude,popup=textPop) #add the marker to the coordinates
-    output$myMap=renderLeaflet(map) #create map from output
-  }
 )
