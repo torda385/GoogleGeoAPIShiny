@@ -17,12 +17,13 @@
 #install devtools if needed
 if(!require(devtools)) install.packages("devtools")
 #install leaflet
-if(!require(leaflet)) install_github("rstudio/leaflet")
+if(!require(leaflet)) install.packages("leaflet")
 #install shiny
-if(!require(shiny)) install_github("shiny")
+if(!require(shiny)) install.packages("shiny")
 #install GoogleGeoAPI app
 if(!require(GoogleGeoAPI)) install_github("Rchieve/GoogleGeoAPI")
-
+library(shiny)
+library(leaflet)
 shinyApp(
   ui <- fluidPage(
     titlePanel(
@@ -35,24 +36,18 @@ shinyApp(
                   h1("Input Type"),
                   c("Address","Coordinates")),
         h1("Input Location"),
-        conditionalPanel(condition=("input_type"==1),
-            textInput("text1","Address",value="Address")),
-        conditionalPanel(condition=("input_type"==2),
-            textInput("text2","Latitude",value="Latitude"),
-            textInput("text3","Longitude",value="Longitude"))   
-      ),
-      hr(),
-      fluidRow(
-        sliderInput("slider1",label=h3("Slider"),min=0,max=100,value=10
-        )
+        conditionalPanel(condition=(input.input_type==1),
+            textInput("text1","Address",value="Linköping University, 58183, Linköping")),
+        conditionalPanel(condition=(input.input_type==2),
+            textInput("text2","Latitude",value="58.397774"),
+            textInput("text3","Longitude",value="15.575977"))   
       ),
       fluidRow(
-        verbatimTextOutput("value")
-      ),
-      hr()
+        sliderInput("slider1",label=h3("Slider"),min=0,max=50,value=10)
+      )
   ),
     mainPanel(
-      leafletOutput('myMap'),
+      leafletOutput("myMap"),
       p()
     )
   ),
